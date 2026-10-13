@@ -272,7 +272,11 @@ const DEFAULT_KEY = 'nhac123';
 
 class CloudClient {
   constructor() {
-    this.server = (localStorage.getItem('ambi_server') || DEFAULT_SERVER).trim().replace(/\/+$/, '');
+    const isHttps = location.protocol === 'https:';
+    // Khi chạy trên HTTPS (như Vercel), mặc định để server rỗng để qua proxy /api của Vercel chống lỗi Mixed Content
+    const fallbackServer = isHttps ? '' : DEFAULT_SERVER;
+    const storedServer = localStorage.getItem('ambi_server');
+    this.server = (storedServer !== null ? storedServer : fallbackServer).trim().replace(/\/+$/, '');
     this.key = (localStorage.getItem('ambi_key') || DEFAULT_KEY).trim();
     this.autoSync = localStorage.getItem('ambi_auto') === null ? true : localStorage.getItem('ambi_auto') === '1';
   }
