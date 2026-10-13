@@ -1,4 +1,7 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "outputDirectory": ".",
   "rewrites": [
     { "source": "/api/:path*", "destination": "http://arc.pikamc.vn:25635/api/:path*" }
   ],
