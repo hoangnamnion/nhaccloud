@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AmbiMusic - Trình Phát Nhạc Cá Nhân Ambient Siêu Xịn</title>
+  <meta name="description" content="App nghe nhạc cá nhân miễn phí 100%, hỗ trợ upload và lưu trữ nhạc vĩnh viễn với hiệu ứng Ambient Light đổi màu theo giai điệu.">
+  <meta name="theme-color" content="#0a0b10">
+  <!-- PWA & Mobile Web App Meta -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="AmbiMusic">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192' fill='none'%3E%3Crect width='192' height='192' rx='42' fill='%230a0b10'/%3E%3Ccircle cx='96' cy='96' r='60' fill='url(%23g)'/%3E%3Cpath d='M80 130V65l48-12v65' stroke='%23fff' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='68' cy='130' r='14' fill='%23fff'/%3E%3Ccircle cx='116' cy='118' r='14' fill='%23fff'/%3E%3Cdefs%3E%3ClinearGradient id='g' x1='36' y1='36' x2='156' y2='156'%3E%3Cstop stop-color='%236366f1'/%3E%3Cstop offset='0.5' stop-color='%23a855f7'/%3E%3Cstop offset='1' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient Light Backdrops (Hiệu ứng Ambilight tràn màn hình) -->
+  <div class="ambient-glow" id="ambientGlow"></div>
+  <div class="ambient-glow-secondary" id="ambientGlowSec"></div>
+  <div class="noise-overlay"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M9 18V5l12-2v13"></path>
+            <circle cx="6" cy="18" r="3"></circle>
+            <circle cx="18" cy="16" r="3"></circle>
+          </svg>
+        </div>
+        <div>
+          <h1 class="logo-text">AmbiMusic <span>PRO</span></h1>
+          <p class="logo-sub">Cloud Music & Ambient Light • 100% Free</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="search" id="searchInput" name="ambi-song-search" placeholder="Tìm kiếm bài hát, ca sĩ..." autocomplete="off" autocapitalize="off" spellcheck="false">
+        </div>
+
+        <!-- Nút Đổi Chủ Đề Giao Diện -->
+        <div class="theme-dropdown" id="themeDropdown">
+          <button class="btn btn-theme" id="themeSwitchBtn" title="Đổi giao diện / Chủ đề màu sắc">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+            </svg>
+            <span class="theme-label-text">Giao diện</span>
+            <span class="theme-current-dot" id="currentThemeDot"></span>
+          </button>
+          
+          <div class="theme-menu" id="themeMenu">
+            <div class="theme-menu-title">Chủ đề giao diện</div>
+            <div class="theme-options-grid">
+              <button class="theme-btn-option active" data-theme="neon">
+                <span class="theme-color-preview" style="background: linear-gradient(135deg, #6366f1, #ec4899);"></span>
+                <div class="theme-btn-meta">
+                  <span class="theme-btn-title">Neon Ambiance</span>
+                  <span class="theme-btn-desc">Mặc định • Hologram Glow</span>
+                </div>
+              </button>
+              <button class="theme-btn-option" data-theme="obsidian">
+                <span class="theme-color-preview" style="background: linear-gradient(135deg, #f59e0b, #d97706);"></span>
+                <div class="theme-btn-meta">
+                  <span class="theme-btn-title">Obsidian Gold</span>
+                  <span class="theme-btn-desc">Đen huyền bí • Vàng Champagne</span>
+                </div>
+              </button>
+              <button class="theme-btn-option" data-theme="aurora">
+                <span class="theme-color-preview" style="background: linear-gradient(135deg, #10b981, #06b6d4);"></span>
+                <div class="theme-btn-meta">
+                  <span class="theme-btn-title">Emerald Aurora</span>
+                  <span class="theme-btn-desc">Ngọc lục bảo • Cực quang xanh</span>
+                </div>
+              </button>
+              <button class="theme-btn-option" data-theme="cyberpunk">
+                <span class="theme-color-preview" style="background: linear-gradient(135deg, #00f0ff, #ff0055);"></span>
+                <div class="theme-btn-meta">
+                  <span class="theme-btn-title">Cyberpunk Tokyo</span>
+                  <span class="theme-btn-desc">Xanh điện quang • Hồng Neon</span>
+                </div>
+              </button>
+              <button class="theme-btn-option" data-theme="sunset">
+                <span class="theme-color-preview" style="background: linear-gradient(135deg, #ff7e5f, #feb47b);"></span>
+                <div class="theme-btn-meta">
+                  <span class="theme-btn-title">Sunset Chill</span>
+                  <span class="theme-btn-desc">Hoàng hôn ấm • Cam đào</span>
+                </div>
+              </button>
+              <button class="theme-btn-option" data-theme="minimal-light">
+                <span class="theme-color-preview" style="background: linear-gradient(135deg, #ffffff, #94a3b8); border-color: rgba(0,0,0,0.15);"></span>
+                <div class="theme-btn-meta">
+                  <span class="theme-btn-title">Studio Snow</span>
+                  <span class="theme-btn-desc">Kính tuyết mờ • Phong cách sáng</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-telegram" id="telegramSyncBtn" title="Đồng bộ kho nhạc với Telegram">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+          </svg>
+          <span>Telegram Cloud</span>
+          <span class="tele-status-dot" id="teleDot" style="background:#64748b;box-shadow:none"></span>
+        </button>
+
+        <label for="fileUploadInput" class="btn btn-primary upload-btn" id="uploadLabel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <span>Tải nhạc lên</span>
+        </label>
+        <input type="file" id="fileUploadInput" multiple accept="audio/*,.mp3,.flac,.wav,.m4a,.ogg,.aac,.webm" style="display: none;">
+      </div>
+    </header>
+
+    <!-- Telegram Cloud Sync Banner / Notification -->
+    <div class="tele-banner" id="teleBanner" style="display: none;">
+      <div class="tele-banner-content">
+        <span class="tele-spinner" id="teleSpinner"></span>
+        <span id="teleBannerText">Đang tải nhạc lên Telegram Cloud...</span>
+        <button class="tele-banner-close" id="closeTeleBanner" title="Đóng thông báo">&times;</button>
+      </div>
+    </div>
+
+    <!-- Main Content Layout -->
+    <main class="main-content">
+      <!-- Left Column: Now Playing & Ambilight Stage -->
+      <section class="player-stage">
+        <div class="stage-card">
+          <!-- Vinyl Album Cover with Ambilight Halo -->
+          <div class="cover-wrapper" id="coverWrapper">
+            <div class="cover-glow" id="coverGlow"></div>
+            <div class="vinyl-disc" id="vinylDisc"></div>
+            <img src="" alt="Album Art" id="coverImg" class="album-art" style="display: none;">
+            <div class="cover-placeholder" id="coverPlaceholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M9 18V5l12-2v13"></path>
+                <circle cx="6" cy="18" r="3"></circle>
+                <circle cx="18" cy="16" r="3"></circle>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Song Meta -->
+          <div class="song-meta">
+            <h2 class="song-title" id="songTitle">Chưa chọn bài hát</h2>
+            <p class="song-artist" id="songArtist">Hãy tải file MP3/FLAC hoặc chọn bài bên dưới</p>
+          </div>
+
+          <!-- Realtime Audio Visualizer -->
+          <div class="visualizer-container">
+            <canvas id="visualizerCanvas"></canvas>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="progress-section">
+            <span class="time-label" id="currentTime">00:00</span>
+            <div class="progress-bar-container" id="progressBarContainer">
+              <div class="progress-bar-fill" id="progressBarFill"></div>
+              <div class="progress-bar-thumb" id="progressBarThumb"></div>
+            </div>
+            <span class="time-label" id="totalDuration">00:00</span>
+          </div>
+
+          <!-- Controls -->
+          <div class="player-controls">
+            <button class="ctrl-btn" id="shuffleBtn" title="Trộn bài" aria-label="Shuffle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 3 21 3 21 8"></polyline>
+                <line x1="4" y1="20" x2="21" y2="3"></line>
+                <polyline points="21 16 21 21 16 21"></polyline>
+                <line x1="15" y1="15" x2="21" y2="21"></line>
+                <line x1="4" y1="4" x2="9" y2="9"></line>
+              </svg>
+            </button>
+
+            <button class="ctrl-btn" id="prevBtn" title="Bài trước" aria-label="Previous">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="19 20 9 12 19 4 19 20"></polygon>
+                <line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="3"></line>
+              </svg>
+            </button>
+
+            <button class="ctrl-btn play-btn" id="playBtn" title="Phát / Dừng" aria-label="Play/Pause">
+              <svg viewBox="0 0 24 24" fill="currentColor" id="playIcon">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+            </button>
+
+            <button class="ctrl-btn" id="nextBtn" title="Bài kế tiếp" aria-label="Next">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                <line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="3"></line>
+              </svg>
+            </button>
+
+            <button class="ctrl-btn" id="loopBtn" title="Lặp lại" aria-label="Repeat">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="17 1 21 5 17 9"></polyline>
+                <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                <polyline points="7 23 3 19 7 15"></polyline>
+                <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Bottom Control Helpers (Volume & Ambient Toggle) -->
+          <div class="secondary-controls">
+            <div class="volume-container">
+              <button class="vol-icon" id="volBtn" title="Tắt / Bật tiếng">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="volIcon">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+              </button>
+              <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.8" class="vol-slider">
+            </div>
+
+            <div class="ambient-intensity">
+              <span class="ambient-badge">
+                <span class="pulse-dot"></span> Ambilight: <strong id="ambientStatus">BẬT</strong>
+              </span>
+              <button class="btn btn-ghost" id="ambientToggleBtn" title="Bật/Tắt hiệu ứng đèn tỏa">Đổi độ sáng</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Playlist & Drop Zone -->
+      <section class="playlist-section">
+        <!-- Drop Zone Banner -->
+        <div class="drop-zone" id="dropZone">
+          <div class="drop-content">
+            <div class="drop-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="12" y1="18" x2="12" y2="12"></line>
+                <line x1="9" y1="15" x2="12" y2="12"></line>
+                <line x1="15" y1="15" x2="12" y2="12"></line>
+              </svg>
+            </div>
+            <div>
+              <h3>Kéo & Thả bài hát hoặc cả thư mục nhạc vào đây</h3>
+              <p>Hỗ trợ MP3, FLAC, WAV, M4A, OGG • Nạp tức thì & Nghe ngay trong 0.1 giây</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Playlist Header -->
+        <div class="playlist-header">
+          <div class="playlist-title-group">
+            <h3>Danh sách bài hát</h3>
+            <span class="track-count-badge" id="trackCountBadge">0 bài hát</span>
+          </div>
+          <div class="playlist-tools">
+            <button class="btn btn-ghost" id="clearAllBtn" title="Xóa tất cả bài">Xóa hết</button>
+          </div>
+        </div>
+
+        <!-- Song List Container -->
+        <div class="song-list-scroll">
+          <ul class="song-list" id="songList">
+            <!-- Dynamic Song Items -->
+          </ul>
+
+          <div class="empty-state" id="emptyState">
+            <div class="empty-icon">🎧</div>
+            <h4>Chưa có bài hát nào trong kho!</h4>
+            <p>Bấm nút <strong>"Tải nhạc lên"</strong> ở trên hoặc kéo thả bất kỳ bài hát nào từ máy tính vào đây để nghe ngay lập tức.</p>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+              <button class="btn btn-primary" id="emptyUploadBtn">Tải nhạc ngay</button>
+              <button class="btn btn-ghost" id="demoBtn">✨ Nghe thử nhạc mẫu Ambient Demo</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature Tags / Storage Notice -->
+        <div class="storage-notice">
+          <div class="notice-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span><strong>IndexedDB:</strong> Nhạc lưu an toàn trên ổ cứng của bạn, tắt máy mở lại vẫn còn.</span>
+          </div>
+          <div class="notice-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg>
+            <span><strong>Offline 100%:</strong> Không cần internet, không quảng cáo, miễn phí trọn đời.</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal Cài Đặt Telegram Cloud -->
+  <div class="modal-backdrop" id="telegramModal" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <svg viewBox="0 0 24 24" fill="currentColor" class="tele-logo">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+          </svg>
+          <h3>Telegram Cloud Sync</h3>
+        </div>
+        <button class="modal-close" id="closeTeleModal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="tele-connected-card">
+          <div class="tele-avatar">☁️</div>
+          <div class="tele-acc-info">
+            <div class="tele-acc-name">AmbiMusic Cloud (kho nhạc chung)</div>
+            <div class="tele-acc-sub">Server: <span id="displayChatId">—</span></div>
+          </div>
+          <span class="badge-success" id="teleBadge">Chưa cấu hình</span>
+        </div>
+
+        <div class="form-group">
+          <label>Địa chỉ server:</label>
+          <input type="text" id="teleTokenInput" name="ambi-server-url" class="form-input" value="http://arc.pikamc.vn:25635" placeholder="http://arc.pikamc.vn:25635" autocomplete="off" spellcheck="false">
+        </div>
+
+        <div class="form-group">
+          <label>Mã nhóm:</label>
+          <input type="text" id="teleChatInput" name="ambi-group-code" class="form-input" value="nhac123" placeholder="nhac123" autocomplete="off" spellcheck="false">
+        </div>
+
+        <label class="form-check"><input type="checkbox" id="teleAutoSync"> Tự động đẩy lên cloud mỗi khi tải nhạc lên</label>
+
+        <div class="modal-action-row">
+          <button class="btn btn-primary" id="saveTeleConfigBtn">Lưu Cấu Hình</button>
+          <button class="btn btn-primary" id="pushAllToTeleBtn" style="background: linear-gradient(135deg, #0284c7, #38bdf8);">🚀 Đẩy các bài trên máy này lên cloud</button>
+          <button class="btn btn-ghost" id="pullTeleTracksBtn">🔄 Đồng bộ danh sách từ cloud</button>
+          <button class="btn btn-ghost" id="checkServerBtn">🩺 Kiểm tra server</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <audio id="audioElement" preload="metadata"></audio>
+
+  <script src="app.js"></script>
+</body>
+</html>

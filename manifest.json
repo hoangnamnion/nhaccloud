@@ -1,0 +1,18 @@
+{
+  "name": "AmbiMusic PRO",
+  "short_name": "AmbiMusic",
+  "description": "App nghe nhạc Ambient Light cá nhân miễn phí và đồng bộ",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0b10",
+  "theme_color": "#0a0b10",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
